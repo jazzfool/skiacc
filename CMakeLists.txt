@@ -4,6 +4,7 @@ project(skiacc)
 
 set(SKIACC_SHARED OFF)
 set(SKIACC_MODULES "")
+set(SKIACC_COMMIT "master")
 
 if (SKIACC_SHARED)
     set(SKIACC_SKIA_OUT ${CMAKE_CURRENT_SOURCE_DIR}/skia/out/ReleaseShared)
@@ -16,7 +17,7 @@ else()
 endif()
 
 add_custom_target(skiacc_build ALL
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/build.py -q ${SKIACC_SHARED_ARG} -m ${SKIACC_MODULES}
+    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/build.py -q ${SKIACC_SHARED_ARG} -c ${SKIACC_COMMIT} -m ${SKIACC_MODULES}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
