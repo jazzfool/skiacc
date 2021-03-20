@@ -15,10 +15,6 @@ Either:
 1. Invoke `build.py` on its own to build standalone binaries.
 2. Add `CMakeLists.txt` as a subdirectory to build binaries and link into your own CMake project.
 
-For example, to build with `svg` and `skshaper` modules at commit `7cee3ef`:
-
-### `build.py`
-
 Available options:
 - `--modules`, `-m`: Skia modules to build.
     - `audioplayer`
@@ -37,11 +33,17 @@ Available options:
 - `--quiet`, `-q`: Do not show output of commands being executes.
 - `--llvm-win`: *Windows only*. LLVM directory (defaults to `C:\Program Files\LLVM`).
 
+### Example
+
+As an example, to build with `svg` and `skshaper` modules at commit `7cee3ef`:
+
+**Using `build.py`**
+
 ```shell
-$ build.py --modules svg skshaper --commit 7cee3ef
+$ python build.py --modules svg skshaper --commit 7cee3ef
 ```
 
-### CMake
+**Using CMake**
 
 ```cmake
 project(MyProject CXX)
