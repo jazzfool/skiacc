@@ -99,6 +99,7 @@ else:
 print(f'Skia checkout to {commit}')
 
 call(['git', 'checkout', commit], cwd='skia')
+call(['git', 'pull'], cwd='skia')
 
 if not os.path.exists('depot_tools'):
     print('Cloning depot-tools')
