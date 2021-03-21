@@ -27,12 +27,14 @@ Available `build.py` options:
 - `--quiet`, `-q`: Do not show output of commands being executes.
 - `--llvm-win`: *Windows only*. LLVM directory (defaults to `C:\Program Files\LLVM`).
 - `--force`, `-f`: Force Skia rebuild, ignoring the cached configuration.
+- `--args`: Additional GN arguments.
 
 Available CMake options:
 - `SKIACC_SHARED`: Maps to `--shared`.
 - `SKIACC_ALL_MODULES`: Maps to `--modules`.
 - `SKIACC_COMMIT`: Maps to `--commit`.
 - `SKIACC_COPY_INCLUDE`: Copies Skia include files to a renamed directory in the build tree. This way, Skia can be included by `<skia/core/...>` and modules by `<skia/modules/svg/...>`, instead of `<include/core/...>` and `<modules/svg/include/...>`.
+- `SKIACC_ARGS`: Maps to `--args`.
 
 **NOTE:** `shared` + `all-modules` is not a supported combination. Skia's build system does not support building modules as dynamic libraries.
 
@@ -43,7 +45,7 @@ As an example, to build with additional modules at commit `7cee3ef` as a static 
 **Using `build.py`**
 
 ```shell
-$ python build.py -m -c 7cee3ef
+$ python build.py -m -c '7cee3ef'
 ```
 
 **Using CMake**
@@ -57,7 +59,16 @@ set(SKIACC_ALL_MODULES ON)
 set(SKIACC_SHARED OFF)
 set(SKIACC_COMMIT "7cee3ef")
 set(SKIACC_COPY_INCLUDE ON)
+set(SKIACC_ARGS "")
 
 add_subdirectory(skiacc) # Invokes build.py
 target_link_libraries(MyProject PRIVATE skiacc)
+```
+
+## Additional back-ends
+
+By default skiacc will enable the OpenGL back-end, but you can enable other back-ends (Vulkan, Metal, Direct3D) via the `--args` option.
+
+```bash
+$ python build.py --args 'skia_use_metal=true skia_use_direct3d=true skia_use_vulkan=true'
 ```
