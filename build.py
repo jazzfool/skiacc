@@ -6,8 +6,8 @@ from collections import Counter
 
 parser = argparse.ArgumentParser(description='Skia build utility')
 
-parser.add_argument('-m', '--modules', nargs='*',
-                    help='Additional Skia modules to build', required=False)
+parser.add_argument('-m', '--all-modules',
+                    help='Build additional Skia modules', action='store_true')
 
 parser.add_argument('-c', '--commit', type=str,
                     help='Skia SHA commit to checkout')
@@ -20,16 +20,22 @@ parser.add_argument(
 
 parser.add_argument('--llvm-win', type=str, help="LLVM directory for Windows")
 
+parser.add_argument(
+    '-f', '--force', help='Force rebuild, regardless of cache', action='store_true')
 
 args = parser.parse_args()
 
-modules = []
+if args.all_modules and args.shared:
+    print('Cannot build all modules as a shared library. This configuration is unsupported by Skia. Either remove --shared or --all-modules/-m')
+    exit()
+
+all_modules = False
 commit = 'master'
 llvm_win = 'C:\\Program Files\\LLVM'
 is_shared = False
 
-if args.modules:
-    modules = args.modules
+if args.all_modules:
+    all_modules = True
 
 if args.commit:
     commit = args.commit
@@ -49,46 +55,23 @@ def call(call_args, cwd='.', shell=False, env=None):
         subprocess.call(call_args, cwd=cwd, shell=shell, env=env)
 
 
-valid_modules = [
-    'audioplayer',
-    'canvaskit',
-    'particles',
-    'pathkit',
-    'skottie',
-    'skparagraph',
-    'skplaintexteditor',
-    'skresources',
-    'sksg',
-    'skshaper',
-    'svg'
-]
+if not args.force:
+    if os.path.exists('skiacc_cache.txt'):
+        print('Cache file found')
+        cache = open('skiacc_cache.txt', 'r').read().splitlines()
 
-for module in modules:
-    if module not in valid_modules:
-        print(f'Error: \'{module}\' is not a valid Skia module')
-        exit()
-
-if os.path.exists('skiacc_cache.txt'):
-    print('Cache file found')
-    cache = open('skiacc_cache.txt', 'r').read().splitlines()
-
-    if len(cache) > 1:
-        same_modules = False
-
-        if len(cache) < 3 and len(modules) == 0:
-            same_modules = True
-        elif len(cache) >= 3 and len(modules) == len(cache) - 2:
-            same_modules = Counter(cache[2:]) == Counter(modules)
-
-        if int(cache[0]) == int(args.shared) and cache[1] == commit and same_modules:
-            print('Cached options are equal, no rebuild needed')
-            exit()
+        if len(cache) > 1:
+            if int(cache[0]) == int(args.shared) and cache[1] == commit and int(cache[2]) >= int(all_modules):
+                print('Cached options are equal, no rebuild needed')
+                exit()
+            else:
+                print('Cached options are different')
         else:
-            print('Cached options are different')
+            print('Invalid cache file')
     else:
-        print('Invalid cache file')
+        print('No cache file found')
 else:
-    print('No cache file found')
+    print('Forcing rebuild')
 
 if not os.path.exists('skia'):
     print('Cloning Skia')
@@ -120,44 +103,51 @@ shared_opt = ''
 if args.shared:
     shared_opt = 'is_component_build=true'
 
-for module in modules:
-    module = f'module/{module}'
 
 out_dir = 'out/Release'
 
 if args.shared:
     out_dir = 'out/ReleaseShared'
 
+module_args = []
+
+if args.all_modules:
+    module_args = ['skia_enable_particles=true', 'skia_enable_skottie=true',
+                   'skia_enable_skparagraph=true', 'skia_enable_skshaper=true', 'skia_enable_svg=true']
+
+module_args = ' '.join(module_args)
+
 
 def build_ninja():
     call_args = ['ninja', '-C', out_dir, 'skia']
-    call_args.extend(modules)
+    if all_modules:
+        call_args.extend(
+            ['particles', 'skottie', 'skparagraph', 'skshaper', 'svg'])
 
     call(call_args, cwd='skia', shell=True)
 
 # Platform-specific commands from here on
 
-# Adapted from Aseprite build commands
-
 
 def build_win32():
     call(['call', 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat', '-arch=x64'], shell=True)
 
-    call(f'call ../depot_tools/gn gen {out_dir} --args="is_debug=false is_official_build=true {shared_opt} skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" clang_win=\\"{llvm_win}\\" win_vc=\\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\""', cwd='skia', shell=True)
+    call(
+        f'call ../depot_tools/gn gen {out_dir} --args="is_debug=false is_official_build=true {module_args} {shared_opt} skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" clang_win=\\"{llvm_win}\\" win_vc=\\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\" extra_cflags=[\\"-MD\\"]"', cwd='skia', shell=True)
 
     build_ninja()
 
 
 def build_macos():
     call(
-        f'../depot_tools/gn gen {out_dir} --args="is_debug=false is_official_build=true {shared_opt} skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" extra_cflags=[\\"-stdlib=libc++\\", \\"-mmacosx-version-min=10.9\\"] extra_cflags_cc=[\\"-frtti\\"]"', cwd='skia', shell=True)
+        f'../depot_tools/gn gen {out_dir} --args="is_debug=false is_official_build=true {module_args} {shared_opt} skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" extra_cflags=[\\"-stdlib=libc++\\", \\"-mmacosx-version-min=10.9\\"] extra_cflags_cc=[\\"-frtti\\"]"', cwd='skia', shell=True)
 
     build_ninja()
 
 
 def build_linux():
     call(
-        f'../depot_tools/gn gen {out_dir} --args="is_debug=false is_official_build=true {shared_opt} skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false', cwd='skia', shell=True)
+        f'../depot_tools/gn gen {out_dir} --args="is_debug=false is_official_build=true {module_args} {shared_opt} skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false', cwd='skia', shell=True)
 
     build_ninja()
 
@@ -177,8 +167,7 @@ else:
 
 cache = open('skiacc_cache.txt', 'w+')
 
-cached = [str(int(args.shared)), commit]
-cached.extend(modules)
+cached = [str(int(args.shared)), commit, str(int(all_modules))]
 
 cache.write('\n'.join(cached))
 
