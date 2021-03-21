@@ -28,6 +28,7 @@ Available `build.py` options:
 - `--llvm-win`: *Windows only*. LLVM directory (defaults to `C:\Program Files\LLVM`).
 - `--force`, `-f`: Force Skia rebuild, ignoring the cached configuration.
 - `--args`: Additional GN arguments.
+- `--debug`: Debug build.
 
 Available CMake options:
 - `SKIACC_SHARED`: Maps to `--shared`.
@@ -35,6 +36,8 @@ Available CMake options:
 - `SKIACC_COMMIT`: Maps to `--commit`.
 - `SKIACC_COPY_INCLUDE`: Copies Skia include files to a renamed directory in the build tree. This way, Skia can be included by `<skia/core/...>` and modules by `<skia/modules/svg/...>`, instead of `<include/core/...>` and `<modules/svg/include/...>`.
 - `SKIACC_ARGS`: Maps to `--args`.
+
+`CMAKE_BUILD_TYPE` will automatically conditionally map to `--debug`.
 
 **NOTE:** `shared` + `all-modules` is not a supported combination. Skia's build system does not support building modules as dynamic libraries.
 

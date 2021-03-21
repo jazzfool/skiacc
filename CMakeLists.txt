@@ -114,6 +114,12 @@ else()
     set(SKIACC_ARGS_ARG "--arg ${SKIACC_ARGS}")
 endif()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(SKIACC_DEBUG_ARG "--debug")
+elseif()
+    set(SKIACC_DEBUG_ARG "")
+endif()
+
 add_custom_command(
     OUTPUT ${SKIACC_EXPECTED_OUTPUT}
     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/build.py ${SKIACC_ARGS_ARG} -q ${SKIACC_SHARED_ARG} -c ${SKIACC_COMMIT} ${SKIACC_MODULES_ARG}
