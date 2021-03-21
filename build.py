@@ -149,10 +149,10 @@ def build_ninja():
 
 
 def build_win32():
-    cflags = '-MT'
+    cflags = '-MD'
 
-    if is_shared:
-        cflags = '-MD'
+    # if is_shared:
+    #    cflags = '-MD'
 
     if is_debug:
         cflags += 'd'
