@@ -40,7 +40,7 @@ commit = 'master'
 llvm_win = 'C:\\Program Files\\LLVM'
 is_shared = False
 user_args = ''
-debug_arg = 'is_debug=false'
+debug_arg = 'is_official_build=true is_debug=false'
 is_debug = False
 
 if args.all_modules:
@@ -59,7 +59,7 @@ if args.args:
     user_args = args.args
 
 if args.debug:
-    debug_arg = 'is_debug=true'
+    debug_arg = 'is_official_build=false is_debug=true'
     is_debug = True
 
 
@@ -149,21 +149,21 @@ def build_win32():
     call(['call', 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/Tools/VsDevCmd.bat', '-arch=x64'], shell=True)
 
     call(
-        f'call ../depot_tools/gn gen {out_dir} --args="{debug_arg} is_official_build=true {module_args} {shared_opt} {user_args} skia_enable_gpu=true skia_use_gl=true skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" clang_win=\\"{llvm_win}\\" win_vc=\\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\" extra_cflags=[\\"-MD\\"]"', cwd='skia', shell=True)
+        f'call ../depot_tools/gn gen {out_dir} --args="{debug_arg} {module_args} {shared_opt} {user_args} skia_enable_gpu=true skia_use_gl=true skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" clang_win=\\"{llvm_win}\\" win_vc=\\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\" extra_cflags=[\\"-MD\\"]"', cwd='skia', shell=True)
 
     build_ninja()
 
 
 def build_macos():
     call(
-        f'../depot_tools/gn gen {out_dir} --args="{debug_arg} is_official_build=true {module_args} {shared_opt} {user_args} skia_enable_gpu=true skia_use_gl=true skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" extra_cflags=[\\"-stdlib=libc++\\", \\"-mmacosx-version-min=10.9\\"] extra_cflags_cc=[\\"-frtti\\"]"', cwd='skia', shell=True)
+        f'../depot_tools/gn gen {out_dir} --args="{debug_arg} {module_args} {shared_opt} {user_args} skia_enable_gpu=true skia_use_gl=true skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false target_cpu=\\"x64\\" extra_cflags=[\\"-stdlib=libc++\\", \\"-mmacosx-version-min=10.9\\"] extra_cflags_cc=[\\"-frtti\\"]"', cwd='skia', shell=True)
 
     build_ninja()
 
 
 def build_linux():
     call(
-        f'../depot_tools/gn gen {out_dir} --args="{debug_arg} is_official_build=true {module_args} {shared_opt} {user_args} skia_enable_gpu=true skia_use_gl=true skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false', cwd='skia', shell=True)
+        f'../depot_tools/gn gen {out_dir} --args="{debug_arg} {module_args} {shared_opt} {user_args} skia_enable_gpu=true skia_use_gl=true skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false', cwd='skia', shell=True)
 
     build_ninja()
 
