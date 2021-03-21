@@ -30,7 +30,7 @@ Available `build.py` options:
 
 Available CMake options:
 - `SKIACC_SHARED`: Maps to `--shared`.
-- `SKIACC_MODULES`: Maps to `--modules`.
+- `SKIACC_ALL_MODULES`: Maps to `--modules`.
 - `SKIACC_COMMIT`: Maps to `--commit`.
 - `SKIACC_COPY_INCLUDE`: Copies Skia include files to a renamed directory in the build tree. This way, Skia can be included by `<skia/core/...>` and modules by `<skia/modules/svg/...>`, instead of `<include/core/...>` and `<modules/svg/include/...>`.
 

@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.0)
 
 project(skiacc)
 
+execute_process(
+    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/clone.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 if (SKIACC_SHARED)
     set(SKIACC_SKIA_OUT ${CMAKE_CURRENT_SOURCE_DIR}/skia/out/ReleaseShared)
     set(SKIACC_LIB_TYPE SHARED)
