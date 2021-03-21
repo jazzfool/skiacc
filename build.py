@@ -125,6 +125,9 @@ out_dir = 'out/Release'
 if args.shared:
     out_dir = 'out/ReleaseShared'
 
+if is_debug:
+    out_dir += 'Debug'
+
 module_args = []
 
 if args.all_modules:

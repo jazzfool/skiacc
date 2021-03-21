@@ -17,6 +17,13 @@ else()
     set(SKIACC_SHARED_ARG "")
 endif()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(SKIACC_DEBUG_ARG "--debug")
+    set(SKIACC_SKIA_OUT ${SKIACC_SKIA_OUT}Debug)
+elseif()
+    set(SKIACC_DEBUG_ARG "")
+endif()
+
 if (SKIACC_COPY_INCLUDE)
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/skia/include ${CMAKE_CURRENT_BINARY_DIR}/include/skia
@@ -112,12 +119,6 @@ if (SKIACC_ARGS_EMPTY)
     set(SKIACC_ARGS_ARG "")
 else()
     set(SKIACC_ARGS_ARG "--arg ${SKIACC_ARGS}")
-endif()
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(SKIACC_DEBUG_ARG "--debug")
-elseif()
-    set(SKIACC_DEBUG_ARG "")
 endif()
 
 add_custom_command(
