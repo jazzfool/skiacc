@@ -69,8 +69,8 @@ add_custom_target(skiacc_build ALL
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_dependencies(skiacc skiacc_build)
 add_library(skiacc ${SKIACC_LIB_TYPE} IMPORTED GLOBAL)
+add_dependencies(skiacc skiacc_build)
 
 if (WIN32)
     if (SKIACC_SHARED)
