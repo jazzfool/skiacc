@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
 
 project(skiacc)
 
@@ -106,9 +106,17 @@ if (SKIACC_ALL_MODULES)
     endif()
 endif()
 
+string(COMPARE EQUAL "${SKIACC_ARGS}" "" SKIACC_ARGS_EMPTY)
+
+if (SKIACC_ARGS_EMPTY)
+    set(SKIACC_ARGS_ARG "")
+else()
+    set(SKIACC_ARGS_ARG "--arg ${SKIACC_ARGS}")
+endif()
+
 add_custom_command(
     OUTPUT ${SKIACC_EXPECTED_OUTPUT}
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/build.py --args ${SKIACC_ARGS} -q ${SKIACC_SHARED_ARG} -c ${SKIACC_COMMIT} ${SKIACC_MODULES_ARG}
+    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/build.py ${SKIACC_ARGS_ARG} -q ${SKIACC_SHARED_ARG} -c ${SKIACC_COMMIT} ${SKIACC_MODULES_ARG}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Starting skiacc/build.py"
 )
