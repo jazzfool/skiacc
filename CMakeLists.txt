@@ -158,6 +158,10 @@ endif()
 
 target_include_directories(skiacc INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/skia ${CMAKE_CURRENT_BINARY_DIR}/include)
 
+if (WIN32)
+    target_link_libraries(skiacc INTERFACE opengl32)
+endif()
+
 if (SKIACC_ALL_MODULES)
     if (WIN32)
         target_link_libraries(skiacc INTERFACE
