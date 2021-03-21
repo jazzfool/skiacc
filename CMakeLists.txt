@@ -64,13 +64,59 @@ else()
     set(SKIACC_MODULES_ARG "")
 endif()
 
-add_custom_target(skiacc_build ALL
+if (WIN32)
+    if (SKIACC_SHARED)
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_SKIA_OUT}/skia.dll.lib)
+    else()
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_SKIA_OUT}/skia.lib)
+    endif()
+elseif(APPLE)
+    if (SKIACC_SHARED)
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_SKIA_OUT}/skia.dylib)
+    else()
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_SKIA_OUT}/skia.a)
+    endif()
+elseif(UNIX AND NOT APPLE)
+    if (SKIACC_SHARED)
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_SKIA_OUT}/skia.so)
+    else()
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_SKIA_OUT}/skia.a)
+    endif()
+else()
+    message(FATAL_ERROR "Unsupported skiacc platform")
+endif()
+
+if (SKIACC_ALL_MODULES)
+    if (WIN32)
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_EXPECTED_OUTPUT}
+            ${SKIACC_SKIA_OUT}/particles.lib
+            ${SKIACC_SKIA_OUT}/skottie.lib
+            ${SKIACC_SKIA_OUT}/skparagraph.lib
+            ${SKIACC_SKIA_OUT}/skshaper.lib
+            ${SKIACC_SKIA_OUT}/svg.lib
+        )
+    elseif(UNIX)
+        set(SKIACC_EXPECTED_OUTPUT ${SKIACC_EXPECTED_OUTPUT}
+            ${SKIACC_SKIA_OUT}/particles.a
+            ${SKIACC_SKIA_OUT}/skottie.a
+            ${SKIACC_SKIA_OUT}/skparagraph.a
+            ${SKIACC_SKIA_OUT}/skshaper.a
+            ${SKIACC_SKIA_OUT}/svg.a
+        )
+    endif()
+endif()
+
+add_custom_command(
+    OUTPUT ${SKIACC_EXPECTED_OUTPUT}
     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/build.py -q ${SKIACC_SHARED_ARG} -c ${SKIACC_COMMIT} ${SKIACC_MODULES_ARG}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Starting skiacc/build.py"
 )
 
+add_custom_target(skiacc_target DEPENDS ${SKIACC_EXPECTED_OUTPUT})
+
 add_library(skiacc ${SKIACC_LIB_TYPE} IMPORTED GLOBAL)
-add_dependencies(skiacc skiacc_build)
+add_dependencies(skiacc skiacc_target)
 
 if (WIN32)
     if (SKIACC_SHARED)
